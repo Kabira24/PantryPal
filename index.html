@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PantryPal — Smart Kitchen Intelligence</title>
+    <meta name="description"
+        content="PantryPal is your AI-powered pantry assistant. Track ingredients, get recipe suggestions, monitor expiry dates, plan groceries, and reduce food waste.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Ambient Background -->
+        <div class="ambient-bg">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+        </div>
+
+        <!-- Header -->
+        <header class="header" id="header">
+            <div class="header-inner">
+                <div class="logo">
+                    <div class="logo-icon">🥘</div>
+                    <span class="logo-text">PantryPal</span>
+                    <span class="logo-badge">AI</span>
+                </div>
+                <nav class="nav" id="nav">
+                    <button class="nav-btn active" data-view="dashboard" id="nav-dashboard">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">Dashboard</span>
+                    </button>
+                    <button class="nav-btn" data-view="pantry" id="nav-pantry">
+                        <span class="nav-icon">🗄️</span>
+                        <span class="nav-label">Pantry</span>
+                    </button>
+                    <button class="nav-btn" data-view="cook" id="nav-cook">
+                        <span class="nav-icon">👨‍🍳</span>
+                        <span class="nav-label">Cook</span>
+                    </button>
+                    <button class="nav-btn" data-view="grocery" id="nav-grocery">
+                        <span class="nav-icon">🛒</span>
+                        <span class="nav-label">Grocery</span>
+                    </button>
+                    <button class="nav-btn" data-view="insights" id="nav-insights">
+                        <span class="nav-icon">💡</span>
+                        <span class="nav-label">Insights</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- AI Command Bar -->
+        <div class="command-bar-wrapper" id="command-bar-wrapper">
+            <div class="command-bar" id="command-bar">
+                <div class="command-icon">✨</div>
+                <input type="text" class="command-input" id="command-input"
+                    placeholder="Tell me anything... &quot;Add 2 kg rice&quot;, &quot;What can I cook?&quot;, &quot;Check expiry dates&quot;"
+                    autocomplete="off">
+                <div class="command-hint" id="command-hint"></div>
+                <button class="command-send" id="command-send">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+            <div class="command-tags" id="command-tags">
+                <button class="tag" data-input="Add 500g chicken breast">+ Add ingredient</button>
+                <button class="tag" data-input="What can I cook tonight?">🍳 Cook suggestion</button>
+                <button class="tag" data-input="Check expiring items">⏰ Expiry check</button>
+                <button class="tag" data-input="Plan my grocery list">🛒 Grocery plan</button>
+                <button class="tag" data-input="Show waste analysis">📉 Waste report</button>
+            </div>
+        </div>
+
+        <!-- AI Response Area -->
+        <div class="ai-response-area" id="ai-response-area" style="display:none;">
+            <div class="ai-response-card" id="ai-response-card">
+                <div class="ai-response-header">
+                    <span class="ai-label">✨ PantryPal AI</span>
+                    <button class="ai-close" id="ai-close">&times;</button>
+                </div>
+                <div class="ai-response-body" id="ai-response-body"></div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content" id="main-content">
+
+            <!-- ===== DASHBOARD VIEW ===== -->
+            <section class="view active" id="view-dashboard">
+                <div class="view-header">
+                    <h1>Good evening! 🌙</h1>
+                    <p class="view-subtitle">Here's your kitchen at a glance</p>
+                </div>
+
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card stat-total">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-total">0</span>
+                            <span class="stat-label">Total Items</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-expiring">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-expiring">0</span>
+                            <span class="stat-label">Expiring Soon</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-expired">
+                        <div class="stat-icon">🚫</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-expired">0</span>
+                            <span class="stat-label">Expired</span>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-categories">
+                        <div class="stat-icon">🏷️</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-categories">0</span>
+                            <span class="stat-label">Categories</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card expiry-alert-card" id="expiry-alert-card">
+                        <div class="card-header">
+                            <h2>⏰ Expiry Alerts</h2>
+                            <span class="card-badge" id="expiry-badge">0</span>
+                        </div>
+                        <div class="card-body" id="expiry-alerts-list">
+                            <div class="empty-state">
+                                <span class="empty-icon">✅</span>
+                                <p>All items are fresh!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card recent-card">
+                        <div class="card-header">
+                            <h2>🕐 Recently Added</h2>
+                        </div>
+                        <div class="card-body" id="recent-items-list">
+                            <div class="empty-state">
+                                <span class="empty-icon">📝</span>
+                                <p>No items yet. Try adding some!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card quick-actions-card">
+                        <div class="card-header">
+                            <h2>⚡ Quick Actions</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="quick-actions">
+                                <button class="quick-action-btn" id="qa-add" data-input="Add ">
+                                    <span class="qa-icon">➕</span>
+                                    <span>Add Item</span>
+                                </button>
+                                <button class="quick-action-btn" id="qa-cook" data-input="What can I cook?">
+                                    <span class="qa-icon">🍽️</span>
+                                    <span>Cook Ideas</span>
+                                </button>
+                                <button class="quick-action-btn" id="qa-expiry" data-input="Check expiring items">
+                                    <span class="qa-icon">📅</span>
+                                    <span>Check Expiry</span>
+                                </button>
+                                <button class="quick-action-btn" id="qa-grocery" data-input="Plan my grocery list">
+                                    <span class="qa-icon">📋</span>
+                                    <span>Grocery List</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== PANTRY VIEW ===== -->
+            <section class="view" id="view-pantry">
+                <div class="view-header">
+                    <h1>Your Pantry 🗄️</h1>
+                    <p class="view-subtitle">All your ingredients in one place</p>
+                </div>
+
+                <div class="pantry-toolbar">
+                    <div class="search-box" id="search-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="pantry-search" placeholder="Search ingredients...">
+                    </div>
+                    <div class="filter-pills" id="filter-pills">
+                        <button class="pill active" data-filter="all">All</button>
+                        <button class="pill" data-filter="produce">🥬 Produce</button>
+                        <button class="pill" data-filter="dairy">🧀 Dairy</button>
+                        <button class="pill" data-filter="protein">🥩 Protein</button>
+                        <button class="pill" data-filter="grains">🌾 Grains</button>
+                        <button class="pill" data-filter="spices">🌶️ Spices</button>
+                        <button class="pill" data-filter="other">📦 Other</button>
+                    </div>
+                    <button class="btn-primary" id="pantry-add-btn" onclick="openModal()">
+                        <span>➕ Add Item</span>
+                    </button>
+                </div>
+
+                <div class="pantry-grid" id="pantry-grid">
+                    <div class="empty-state pantry-empty" id="pantry-empty">
+                        <span class="empty-icon">🛒</span>
+                        <h3>Your pantry is empty</h3>
+                        <p>Use the AI command bar above to add ingredients.<br>Try: <em>"Add 2 kg rice"</em></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== COOK VIEW ===== -->
+            <section class="view" id="view-cook">
+                <div class="view-header">
+                    <h1>Cook Something 👨‍🍳</h1>
+                    <p class="view-subtitle">AI-powered recipe suggestions based on your pantry</p>
+                </div>
+
+                <div class="cook-content" id="cook-content">
+                    <div class="cook-prompt-card">
+                        <div class="cook-prompt-icon">🍳</div>
+                        <h3>What's for dinner?</h3>
+                        <p>Based on your pantry, I can suggest recipes you can make right now.</p>
+                        <button class="btn-primary" id="btn-suggest-recipes" data-input="What can I cook tonight?">
+                            <span>✨ Get Suggestions</span>
+                        </button>
+                    </div>
+                    <div id="recipe-suggestions" class="recipe-suggestions"></div>
+                </div>
+            </section>
+
+            <!-- ===== GROCERY VIEW ===== -->
+            <section class="view" id="view-grocery">
+                <div class="view-header">
+                    <h1>Grocery Planner 🛒</h1>
+                    <p class="view-subtitle">Smart shopping lists based on what you need</p>
+                </div>
+
+                <div class="grocery-content" id="grocery-content">
+                    <div class="grocery-prompt-card">
+                        <div class="cook-prompt-icon">📋</div>
+                        <h3>Plan Your Shop</h3>
+                        <p>I'll analyze your pantry and suggest what you need to restock.</p>
+                        <button class="btn-primary" id="btn-plan-grocery" data-input="Plan my grocery list">
+                            <span>🛒 Generate List</span>
+                        </button>
+                    </div>
+                    <div id="grocery-list" class="grocery-list"></div>
+                </div>
+            </section>
+
+            <!-- ===== INSIGHTS VIEW ===== -->
+            <section class="view" id="view-insights">
+                <div class="view-header">
+                    <h1>Kitchen Insights 💡</h1>
+                    <p class="view-subtitle">Waste tracking &amp; smart analytics</p>
+                </div>
+
+                <div class="insights-grid" id="insights-grid">
+                    <div class="card insight-card">
+                        <div class="card-header">
+                            <h2>📉 Waste Analysis</h2>
+                        </div>
+                        <div class="card-body" id="waste-analysis">
+                            <div class="insight-metric">
+                                <span class="insight-value" id="waste-count">0</span>
+                                <span class="insight-label">Items wasted this month</span>
+                            </div>
+                            <div class="insight-metric">
+                                <span class="insight-value" id="waste-percent">0%</span>
+                                <span class="insight-label">Waste rate</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card insight-card">
+                        <div class="card-header">
+                            <h2>📊 Category Breakdown</h2>
+                        </div>
+                        <div class="card-body" id="category-breakdown">
+                            <div class="empty-state">
+                                <span class="empty-icon">📊</span>
+                                <p>Add items to see breakdown</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card insight-card">
+                        <div class="card-header">
+                            <h2>🏆 Freshness Score</h2>
+                        </div>
+                        <div class="card-body" id="freshness-score-card">
+                            <div class="freshness-gauge">
+                                <div class="gauge-circle" id="gauge-circle">
+                                    <span class="gauge-value" id="gauge-value">--</span>
+                                </div>
+                                <p class="gauge-label" id="gauge-label">Add items to calculate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Add/Edit Modal -->
+        <div class="modal-overlay" id="modal-overlay" style="display:none;">
+            <div class="modal" id="ingredient-modal">
+                <div class="modal-header">
+                    <h2 id="modal-title">Add Ingredient</h2>
+                    <button class="modal-close" id="modal-close">&times;</button>
+                </div>
+                <form class="modal-form" id="ingredient-form">
+                    <div class="form-group">
+                        <label for="ing-name">Ingredient Name</label>
+                        <input type="text" id="ing-name" placeholder="e.g. Chicken Breast" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ing-quantity">Quantity</label>
+                            <input type="number" id="ing-quantity" placeholder="e.g. 500" min="0" step="any" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ing-unit">Unit</label>
+                            <select id="ing-unit">
+                                <option value="g">Grams (g)</option>
+                                <option value="kg">Kilograms (kg)</option>
+                                <option value="ml">Milliliters (ml)</option>
+                                <option value="L">Liters (L)</option>
+                                <option value="pcs">Pieces (pcs)</option>
+                                <option value="cups">Cups</option>
+                                <option value="tbsp">Tablespoons</option>
+                                <option value="tsp">Teaspoons</option>
+                                <option value="dozen">Dozen</option>
+                                <option value="lbs">Pounds (lbs)</option>
+                                <option value="oz">Ounces (oz)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ing-category">Category</label>
+                            <select id="ing-category">
+                                <option value="produce">🥬 Produce</option>
+                                <option value="dairy">🧀 Dairy</option>
+                                <option value="protein">🥩 Protein</option>
+                                <option value="grains">🌾 Grains</option>
+                                <option value="spices">🌶️ Spices</option>
+                                <option value="other">📦 Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ing-storage">Storage Location</label>
+                            <select id="ing-storage">
+                                <option value="fridge">❄️ Fridge</option>
+                                <option value="pantry">🗄️ Pantry</option>
+                                <option value="freezer">🧊 Freezer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ing-expiry">Expires In (days)</label>
+                            <input type="number" id="ing-expiry" placeholder="Auto-estimated if blank" min="0">
+                        </div>
+                        <div class="form-group form-group-info">
+                            <label>Confidence</label>
+                            <div class="form-info-text" id="modal-confidence-info">Auto-calculated by AI</div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="modal-cancel">Cancel</button>
+                        <button type="submit" class="btn-primary" id="modal-submit">Add Ingredient</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toast-container"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
